@@ -91,3 +91,16 @@ export interface ChartDataPoint {
   isCanary: boolean;
   isContained?: boolean;
 }
+
+export interface CopilotMessage {
+  type: 'copilot';
+  incident_id: string;
+  status: 'analyzing' | 'streaming' | 'completed' | 'failed';
+  model: string;
+  done: boolean;
+  chunk?: string;
+  narrative: string;
+  fallback: boolean;
+  timestamp?: number;
+}
+

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { 
   AegisWebSocketClient, 
+  fetchCopilotBriefing,
   fetchHealth, 
   fetchIncidents, 
   fetchTelemetry 
@@ -8,6 +9,7 @@ import {
 import { 
   AnalystAction, 
   ChartDataPoint, 
+  CopilotMessage,
   HealthStatus, 
   IncidentAlert, 
   TelemetryEvent 
@@ -16,7 +18,9 @@ import { Header } from './components/Header';
 import { DemoControlBar } from './components/DemoControlBar';
 import { EntropyRadar } from './components/EntropyRadar';
 import { IncidentPanel } from './components/IncidentPanel';
+import { AICopilotCard } from './components/AICopilotCard';
 import { TelemetryFeed } from './components/TelemetryFeed';
+
 import { Shield, Terminal, Cpu, Info } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -24,7 +28,9 @@ export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [events, setEvents] = useState<TelemetryEvent[]>([]);
   const [activeIncident, setActiveIncident] = useState<IncidentAlert | null>(null);
+  const [copilot, setCopilot] = useState<CopilotMessage | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+
   const [currentEntropy, setCurrentEntropy] = useState<number>(3.45);
   const [currentRisk, setCurrentRisk] = useState<number>(10.0);
   const [filesAffected, setFilesAffected] = useState<number>(0);
@@ -83,7 +89,11 @@ export const App: React.FC = () => {
           if (incidentData[0].files_affected_count > 0) {
             setFilesAffected(incidentData[0].files_affected_count);
           }
+          fetchCopilotBriefing(incidentData[0].incident_id)
+            .then((b) => setCopilot(b))
+            .catch(() => {});
         }
+
       } catch (err) {
         console.error('Error during initial state load:', err);
       }
@@ -161,8 +171,12 @@ export const App: React.FC = () => {
             };
             return updated;
           });
+        } else if (msg.type === 'copilot') {
+          const copilotData = msg.payload as CopilotMessage;
+          setCopilot(copilotData);
         }
       },
+
       (connected) => setWsConnected(connected)
     );
 
@@ -176,7 +190,9 @@ export const App: React.FC = () => {
   // Stage Control Callbacks
   const handleSandboxReset = () => {
     setActiveIncident(null);
+    setCopilot(null);
     setFilesAffected(0);
+
     setCurrentEntropy(3.42);
     setCurrentRisk(10.0);
     setEvents([]);
@@ -270,7 +286,23 @@ export const App: React.FC = () => {
 
         </div>
 
+        {/* AI Copilot Incident Briefing (Tier-2 Post-Containment Local Gemma 2B) */}
+        <div className="w-full">
+          <AICopilotCard
+            incident={activeIncident}
+            copilot={copilot}
+            onRefresh={() => {
+              if (activeIncident) {
+                fetchCopilotBriefing(activeIncident.incident_id)
+                  .then(setCopilot)
+                  .catch(() => {});
+              }
+            }}
+          />
+        </div>
+
         {/* 5. Live FSEvents Telemetry Stream */}
+
         <div className="w-full">
           <TelemetryFeed
             events={events}

@@ -1,0 +1,66 @@
+# ==============================================================================
+# AegisRansom-X: Tier-2 Post-Containment Ollama Copilot & SOC Console Compose
+# ==============================================================================
+# ARCHITECTURAL HOST BRIDGING NOTICE:
+# 1. Native macOS Darwin Host Layer:
+#    - The Aegis endpoint sensor (agent/watcher.py) hooks directly into the macOS
+#      kernel via Apple Silicon FSEvents.
+#    - Immediate process containment (agent/containment.py) relies on native POSIX
+#      Mach signals (SIGSTOP/SIGCONT) to freeze suspect host processes in < 2ms.
+#    - Therefore, the Aegis backend/agent pipeline runs natively on the macOS host:
+#        $ python3 -m uvicorn backend.main:app --port 8000
+#
+# 2. Containerized Tier-2 Services:
+#    - ollama: Local inference engine running "gemma:2b" on http://localhost:11434.
+#    - frontend: React + Vite SOC Dashboard on http://localhost:5173, reverse-
+#      proxying /api and /ws traffic to the macOS host via host.docker.internal:8000.
+#
+# QUICKSTART:
+#   $ docker compose up -d
+#   $ docker exec -it aegis-ollama ollama pull gemma:2b
+# ==============================================================================
+
+services:
+
+  # ----------------------------------------------------------------------------
+  # Local Ollama LLM Engine (Tier-2 Post-Containment Copilot)
+  # ----------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aegis-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list > /dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # ----------------------------------------------------------------------------
+  # React + Vite SOC Dashboard (Nginx Reverse-Proxy to Host macOS Agent)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aegis-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+
+volumes:
+  ollama_data:
+    name: aegis_ollama_data

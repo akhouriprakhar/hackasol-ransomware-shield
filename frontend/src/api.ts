@@ -1,4 +1,5 @@
-import { ActionResponse, HealthStatus, IncidentAlert, IncidentStatus, SimulatorResponse, TelemetryEvent } from './types';
+import { ActionResponse, CopilotMessage, HealthStatus, IncidentAlert, IncidentStatus, SimulatorResponse, TelemetryEvent } from './types';
+
 
 const API_BASE = window.location.port === '5173' ? 'http://127.0.0.1:8000' : '';
 const WS_BASE = window.location.port === '5173' ? 'ws://127.0.0.1:8000' : ((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host);
@@ -66,7 +67,20 @@ export async function executeIncidentAction(
   return res.json();
 }
 
-export type WSCallback = (data: { type: 'telemetry' | 'incident'; payload: TelemetryEvent | IncidentAlert }) => void;
+export async function fetchCopilotBriefing(incidentId: string = 'latest'): Promise<CopilotMessage> {
+  const res = await fetch(`${API_BASE}/api/incidents/${incidentId}/copilot`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch copilot briefing: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export type WSCallback = (data: 
+  | { type: 'telemetry'; payload: TelemetryEvent }
+  | { type: 'incident'; payload: IncidentAlert }
+  | { type: 'copilot'; payload: CopilotMessage }
+) => void;
+
 
 export class AegisWebSocketClient {
   private ws: WebSocket | null = null;
@@ -111,11 +125,14 @@ export class AegisWebSocketClient {
             this.onMessageCallback({ type: 'telemetry', payload: parsed });
           } else if (parsed.type === 'incident') {
             this.onMessageCallback({ type: 'incident', payload: parsed });
-          } else if (parsed.incident_id) {
+          } else if (parsed.type === 'copilot') {
+            this.onMessageCallback({ type: 'copilot', payload: parsed });
+          } else if (parsed.incident_id && !parsed.narrative) {
             this.onMessageCallback({ type: 'incident', payload: parsed });
           } else if (parsed.event_id) {
             this.onMessageCallback({ type: 'telemetry', payload: parsed });
           }
+
         } catch (err) {
           console.error('Failed to parse WebSocket message:', err, event.data);
         }

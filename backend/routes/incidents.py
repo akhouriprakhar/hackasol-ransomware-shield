@@ -48,3 +48,30 @@ async def list_telemetry(
 ):
     """Fetch recent filesystem telemetry events."""
     return pipeline.database.get_recent_telemetry(limit=limit)
+
+
+@router.get("/api/incidents/{incident_id}/copilot")
+async def get_incident_copilot(
+    incident_id: str,
+    pipeline=Depends(get_pipeline),
+):
+    """Fetch or generate Tier-2 AI Copilot briefing for an incident."""
+    if incident_id.lower() == "latest":
+        incident = pipeline._latest_incident or (
+            pipeline.database.get_recent_incidents(1)[0]
+            if pipeline.database.get_recent_incidents(1)
+            else None
+        )
+    else:
+        incident = pipeline.database.get_incident(incident_id)
+
+    if not incident:
+        raise HTTPException(status_code=404, detail="No incident found matching query")
+
+    cached = pipeline.copilot.get_cached_narrative(incident.incident_id)
+    if cached:
+        return cached
+
+    # Generate fallback/briefing asynchronously
+    return await pipeline.copilot.analyze_incident_async(incident=incident)
+

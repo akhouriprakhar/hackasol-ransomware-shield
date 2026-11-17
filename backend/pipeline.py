@@ -20,7 +20,9 @@ from agent.containment import ContainmentController
 from agent.process_guardian import ProcessGuardian
 from agent.watcher import FilesystemWatcher
 from backend.database import AuditLedger
+from backend.llm_copilot import LLMCopilotService
 from backend.schemas import (
+
     AnalystAction,
     IncidentAlert,
     IncidentStatus,
@@ -56,6 +58,8 @@ class AegisPipeline:
 
         self.anomaly_detector = AnomalyDetector()
         self.arbiter = RiskArbiter(anomaly_detector=self.anomaly_detector)
+        self.copilot = LLMCopilotService(ws_conn_mgr=self.ws_mgr)
+
 
         self.watcher = FilesystemWatcher(
             watch_dir=self.sandbox_dir,
@@ -132,6 +136,21 @@ class AegisPipeline:
                         assessment.risk_score,
                         detection_latency_ms,
                     )
+
+                    # 4. Asynchronous Tier-2 AI Copilot (Dispatched post-freeze, never blocks hot path)
+                    window = self.arbiter._get_window(target_pid)
+                    affected_list = list(window.affected_files) if window else [event.file_path]
+                    canary_name = os.path.basename(event.file_path) if event.is_canary else None
+
+                    self.dispatch_async(
+                        self.copilot.analyze_incident_async(
+                            incident=alert,
+                            target_file=event.file_path,
+                            affected_files=affected_list,
+                            canary_name=canary_name,
+                        )
+                    )
+
 
     def _discover_simulator_pid(self) -> Optional[int]:
         """Scan running processes for brac_sim.py in cmdline."""
@@ -238,6 +257,8 @@ class AegisPipeline:
         # 6. Reset ML sliding windows and active incidents
         self.arbiter.reset_window()
         self._latest_incident = None
+        self.copilot._incident_narratives.clear()
+
 
         logger.info("Sandbox reset completed: %d files + %d canaries.", len(files), len(canaries))
         return {
@@ -365,6 +386,11 @@ class AegisPipeline:
                 "total_files": total_files,
                 "locked_files": locked_files,
             },
+            "copilot": {
+                "model": self.copilot.model,
+                "ollama_url": self.copilot.ollama_url,
+            },
             "latest_incident": self._latest_incident.model_dump() if self._latest_incident else None,
+
             "timestamp": time.time(),
         }

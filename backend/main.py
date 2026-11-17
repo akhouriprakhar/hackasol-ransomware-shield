@@ -117,6 +117,23 @@ async def ws_alerts_endpoint(websocket: WebSocket):
         await ws_manager.disconnect(websocket)
 
 
+@app.websocket("/ws/copilot")
+async def ws_copilot_endpoint(websocket: WebSocket):
+    """Dedicated /ws/copilot channel streaming LLM copilot incident narratives."""
+    await ws_manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_text("pong")
+    except WebSocketDisconnect:
+        await ws_manager.disconnect(websocket)
+    except Exception as e:
+        logger.debug("WebSocket exception on /ws/copilot: %s", e)
+        await ws_manager.disconnect(websocket)
+
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=False)

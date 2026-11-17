@@ -81,3 +81,16 @@ class SimulatorStartRequest(BaseModel):
     delay: Optional[float] = Field(default=None, description="Custom delay in seconds between files")
     max_files: Optional[int] = Field(default=None, description="Max files to encrypt")
 
+
+class CopilotNarrativeResponse(BaseModel):
+    """Response payload for Tier-2 AI Copilot incident briefings."""
+    type: str = Field(default="copilot", description="Message type")
+    incident_id: str = Field(description="Associated incident identifier")
+    status: str = Field(description="Analysis status: analyzing, streaming, completed, failed")
+    model: str = Field(description="Model used: gemma:2b or deterministic_xai")
+    done: bool = Field(default=True, description="Whether generation is complete")
+    narrative: str = Field(description="Full or accumulated narrative text")
+    fallback: bool = Field(default=False, description="True if offline deterministic fallback was used")
+    timestamp: Optional[float] = Field(default=None, description="Timestamp of generation")
+
+

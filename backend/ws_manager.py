@@ -77,6 +77,13 @@ class ConnectionManager:
         payload["type"] = "incident"
         await self.broadcast_json(payload)
 
+    async def broadcast_copilot(self, payload: Dict[str, Any]) -> None:
+        """Broadcast Tier-2 Copilot narrative chunk or completed briefing."""
+        data = dict(payload)
+        data["type"] = "copilot"
+        await self.broadcast_json(data)
+
+
 
 # Global singleton broadcaster instance
 ws_manager = ConnectionManager()
