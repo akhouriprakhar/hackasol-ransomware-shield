@@ -43,3 +43,7 @@ sandbox_targets/*
 # Local Agent Artifacts
 .system_generated/
 *.log
+
+# Organizer Reference Media & PDFs
+*.mp4
+hackasol.pdf
