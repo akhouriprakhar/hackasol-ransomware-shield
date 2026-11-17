@@ -78,13 +78,13 @@
 ---
 
 ## Phase 6: React + Vite + Tailwind SOC Dashboard
-- [ ] **TASK-6.1: Scaffold React Vite Dashboard (`frontend/`)**
+- [x] **TASK-6.1: Scaffold React Vite Dashboard (`frontend/`)**
   - Initialize React + Vite + TypeScript in `frontend/` with Tailwind CSS dark-mode SOC theme.
   - *DoD*: Frontend builds cleanly and loads at `http://localhost:5173`.
-- [ ] **TASK-6.2: Kill Chain Timeline & Threat Status Component**
+- [x] **TASK-6.2: Kill Chain Timeline & Threat Status Component**
   - Build real-time event timeline showing Canary hits, entropy surges, and Cryo-Freeze execution.
   - *DoD*: UI flashes RED and displays `CONTAINED (SIGSTOP)` badge upon receiving WebSocket alert.
-- [ ] **TASK-6.3: Live Shannon Entropy Chart & Action Panel**
+- [x] **TASK-6.3: Live Shannon Entropy Chart & Action Panel**
   - Render real-time entropy spike chart using Recharts.
   - Add interactive buttons for **Resume (SIGCONT)**, **Terminate (SIGKILL)**, and **Rollback Files**.
   - *DoD*: Clicking "Resume" triggers backend action and restores UI to green status.
@@ -92,6 +92,6 @@
 ---
 
 ## Phase 7: Live Jury Demo Script & Verification
-- [ ] **TASK-7.1: End-to-End Live Hackathon Demonstration Dry Run**
+- [x] **TASK-7.1: End-to-End Live Hackathon Demonstration Dry Run**
   - Execute full demo flow: generate dummy files $\to$ start dashboard $\to$ trigger `brac_sim.py` $\to$ verify automatic freeze in $< 1\text{s}$ $\to$ analyst inspects XAI breakdown and restores files.
   - *DoD*: Total MTTD $< 1.0\text{s}$, blast radius $\le 2$ files, zero crashes.

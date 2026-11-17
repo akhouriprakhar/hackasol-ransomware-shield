@@ -147,7 +147,27 @@ class AegisPipeline:
         return None
 
     def start_simulator(self, req: SimulatorStartRequest) -> Dict[str, Union[str, int]]:
-        """Launch brac_sim.py against sandbox_targets and register its PID."""
+        """Launch brac_sim.py against sandbox_targets or simulate benign activity."""
+        if req.mode.lower() == "benign":
+            # Perform harmless, low-entropy modifications on 5 non-canary files
+            modified = 0
+            for f in sorted(self.sandbox_dir.glob("*.txt")):
+                if not self.canary_manager.is_canary_path(f):
+                    try:
+                        with open(f, "a", encoding="utf-8") as fp:
+                            fp.write(f"\n# Benign audit check at {time.strftime('%Y-%m-%d %H:%M:%S')}: Routine low-entropy edit.\n")
+                        modified += 1
+                        if modified >= (req.max_files or 5):
+                            break
+                    except Exception as e:
+                        logger.warning("Error during benign edit on %s: %s", f, e)
+            logger.info("Executed benign activity simulation across %d files", modified)
+            return {
+                "status": "started",
+                "mode": "benign",
+                "message": f"Benign user editing activity simulated across {modified} files (low entropy, zero threat)",
+            }
+
         cmd = [
             sys.executable,
             str(PROJECT_ROOT / "simulator" / "brac_sim.py"),
@@ -303,6 +323,18 @@ class AegisPipeline:
         model_loaded = (
             self.arbiter.anomaly_detector.model is not None
         )
+        total_files = 0
+        locked_files = 0
+        try:
+            for p in self.sandbox_dir.iterdir():
+                if p.name == ".gitkeep":
+                    continue
+                total_files += 1
+                if p.name.endswith(".locked"):
+                    locked_files += 1
+        except Exception:
+            pass
+
         return {
             "status": "healthy",
             "watcher": {
@@ -323,5 +355,10 @@ class AegisPipeline:
             "protected_pids": sorted(list(self.guardian.protected_pids)),
             "contained_pids": sorted(list(self.containment.get_contained_pids())),
             "tracked_pids": sorted(list(self.guardian.get_tracked_pids())),
+            "sandbox": {
+                "total_files": total_files,
+                "locked_files": locked_files,
+            },
+            "latest_incident": self._latest_incident.model_dump() if self._latest_incident else None,
             "timestamp": time.time(),
         }

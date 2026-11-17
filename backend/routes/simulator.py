@@ -23,7 +23,7 @@ async def start_simulator(
     pipeline=Depends(get_pipeline),
 ) -> Dict[str, Any]:
     """Launch benign ransomware simulator inside sandbox_targets in burst/normal/stealth mode."""
-    valid_modes = {"burst", "normal", "stealth"}
+    valid_modes = {"burst", "normal", "stealth", "benign"}
     if req.mode.lower() not in valid_modes:
         raise HTTPException(
             status_code=400,
