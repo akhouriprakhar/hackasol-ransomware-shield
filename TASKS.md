@@ -18,7 +18,7 @@
   - Create directory `./sandbox_targets/` with `.gitkeep`.
   - Build `simulator/sample_generator.py` that populates `./sandbox_targets/` with 50 harmless test files (`.txt`, `.json`, `.csv`, `.pdf` dummy buffers with typical low entropy ~3.5).
   - *DoD*: Running `python3 simulator/sample_generator.py` reliably creates 50 test files with low entropy.
-- [ ] **TASK-1.4: Benign Ransomware Activity Simulator (`simulator/brac_sim.py`)**
+- [x] **TASK-1.4: Benign Ransomware Activity Simulator (`simulator/brac_sim.py`)**
   - Build safe simulator that performs high-speed AES encryption and appends `.locked` exclusively inside `./sandbox_targets/`.
   - Add hardcoded safety interlock: aborts immediately if target directory is outside `sandbox_targets/`.
   - Print live process PID and encryption velocity for observation.
