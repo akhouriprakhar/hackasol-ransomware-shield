@@ -57,7 +57,7 @@
   - Implement process resume using `psutil.Process(pid).resume()` (POSIX `SIGCONT`).
   - Implement termination fallback using `psutil.Process(pid).kill()` (`SIGKILL`).
   - *DoD*: Unit test launches a mock worker process, freezes it via `suspend()`, verifies execution halts, and resumes it cleanly.
-- [ ] **TASK-4.2: End-to-End Autonomous Containment Verification**
+- [x] **TASK-4.2: End-to-End Autonomous Containment Verification**
   - Integrate sensor, risk arbiter, and cryo-freeze controller.
   - Run `brac_sim.py` against 50 dummy files.
   - *DoD*: `brac_sim.py` process is frozen with `SIGSTOP` within $< 1.0\text{s}$, with $\le 2$ files encrypted.
@@ -65,13 +65,13 @@
 ---
 
 ## Phase 5: FastAPI Server & WebSocket Broadcast Hub
-- [ ] **TASK-5.1: FastAPI App & SQLite Audit Ledger (`backend/main.py`)**
+- [x] **TASK-5.1: FastAPI App & SQLite Audit Ledger (`backend/main.py`)**
   - Set up FastAPI app with SQLite WAL mode persistence for incidents and events.
   - *DoD*: Health check endpoint `GET /api/v1/health` responds in $< 10\text{ms}$.
-- [ ] **TASK-5.2: Real-Time WebSocket Alerts Channel (`backend/ws_manager.py`)**
+- [x] **TASK-5.2: Real-Time WebSocket Alerts Channel (`backend/ws_manager.py`)**
   - Implement `/ws/alerts` WebSocket broadcaster streaming telemetry and incidents.
   - *DoD*: Connected WebSocket client receives simulated incident payload within $50\text{ms}$ of freeze.
-- [ ] **TASK-5.3: Analyst Control Endpoints (`backend/routes/actions.py`)**
+- [x] **TASK-5.3: Analyst Control Endpoints (`backend/routes/actions.py`)**
   - Implement `POST /api/v1/actions` with actions: `RESUME_SIGCONT`, `TERMINATE_SIGKILL`, `ROLLBACK_RESTORE`.
   - *DoD*: REST call resumes or terminates the suspended process PID reliably.
 

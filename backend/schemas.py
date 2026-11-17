@@ -67,3 +67,17 @@ class ActionRequest(BaseModel):
     """Analyst action request payload (POST /api/v1/actions)."""
     incident_id: str = Field(description="Target incident ID")
     action: AnalystAction = Field(description="Action to execute")
+
+
+class IncidentActionRequest(BaseModel):
+    """Analyst action request payload (POST /api/incidents/{incident_id}/action)."""
+    action: AnalystAction = Field(description="Action to execute: RESUME_SIGCONT, TERMINATE_SIGKILL, or ROLLBACK_RESTORE")
+
+
+class SimulatorStartRequest(BaseModel):
+    """Request payload to launch the safe simulator (POST /api/simulator/start)."""
+    mode: str = Field(default="normal", description="Speed profile: burst, normal, or stealth")
+    extension: str = Field(default=".locked", description="Target mutated extension (default: .locked)")
+    delay: Optional[float] = Field(default=None, description="Custom delay in seconds between files")
+    max_files: Optional[int] = Field(default=None, description="Max files to encrypt")
+

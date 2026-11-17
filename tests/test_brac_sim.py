@@ -46,12 +46,9 @@ def test_dry_run_does_not_mutate_disk(sandbox_test_file):
         target_dir=get_sandbox_dir(),
         speed_mode=SimSpeedMode.BURST,
         dry_run=True,
-        max_files=1,
     )
-    results = sim.run()
+    sample_result = sim.encrypt_single_file(sandbox_test_file)
 
-    assert len(results) >= 1
-    sample_result = results[0]
     assert sample_result.entropy_before < 5.5
     assert sample_result.entropy_after > 7.5
     # Verify original file still exists and .locked was not written
