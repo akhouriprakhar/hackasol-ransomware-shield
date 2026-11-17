@@ -2,6 +2,7 @@
 
 from agent.canary_manager import CanaryManager, CanaryTripwire
 from agent.config import CANARY_FILENAMES, PROTECTED_PROCESS_NAMES, SANDBOX_DIR
+from agent.containment import ContainedProcessRecord, ContainmentController
 from agent.entropy import (
     EntropyCalculator,
     EntropyResult,
@@ -18,6 +19,8 @@ __all__ = [
     "CANARY_FILENAMES",
     "CanaryManager",
     "CanaryTripwire",
+    "ContainedProcessRecord",
+    "ContainmentController",
     "EntropyCalculator",
     "EntropyResult",
     "FilesystemWatcher",

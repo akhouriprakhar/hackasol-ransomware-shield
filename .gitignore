@@ -43,6 +43,7 @@ sandbox_targets/*
 # Local Agent Artifacts
 .system_generated/
 *.log
+.shadow_cache/
 
 # Organizer Reference Media & PDFs
 *.mp4

@@ -40,11 +40,11 @@
 ---
 
 ## Phase 3: 100% Offline ML Anomaly Model & Risk Arbiter
-- [ ] **TASK-3.1: Offline Isolation Forest Model (`engine/anomaly_model.py`)**
+- [x] **TASK-3.1: Offline Isolation Forest Model (`engine/anomaly_model.py`)**
   - Train and serialize a lightweight Scikit-Learn `IsolationForest` on feature vectors $[\Delta\text{Entropy}, \text{WriteVelocity}, \text{RenameRatio}, \text{CanaryHit}]$.
   - Ensure zero cloud/external API calls; inference time must be $< 50\text{ms}$.
   - *DoD*: Offline test proves model scores normal file edits $< 0.3$ and encrypted bursts $> 0.8$.
-- [ ] **TASK-3.2: Real-Time Composite Risk Arbiter & XAI (`engine/risk_arbiter.py`)**
+- [x] **TASK-3.2: Real-Time Composite Risk Arbiter & XAI (`engine/risk_arbiter.py`)**
   - Synthesize heuristic rules and ML anomaly score into atomic $0 - 100$ risk score.
   - Output deterministic feature attribution breakdown (`CANARY_TRIPWIRE`, `ENTROPY_JUMP`, `WRITE_VELOCITY`).
   - *DoD*: Risk score crosses $\ge 80$ within 3 encrypted files during simulation.
@@ -52,7 +52,7 @@
 ---
 
 ## Phase 4: Non-Destructive POSIX Cryo-Freeze Containment
-- [ ] **TASK-4.1: POSIX Process Freeze & Resume Controller (`agent/containment.py`)**
+- [x] **TASK-4.1: POSIX Process Freeze & Resume Controller (`agent/containment.py`)**
   - Implement process suspension using `psutil.Process(pid).suspend()` (POSIX `SIGSTOP`).
   - Implement process resume using `psutil.Process(pid).resume()` (POSIX `SIGCONT`).
   - Implement termination fallback using `psutil.Process(pid).kill()` (`SIGKILL`).

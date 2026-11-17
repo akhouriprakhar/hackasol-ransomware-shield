@@ -32,8 +32,6 @@ PROTECTED_PROCESS_NAMES: Set[str] = {
     "init",
     "watchdog",
     "pytest",
-    "python",
-    "python3",
     "node",
     "bash",
     "zsh",
