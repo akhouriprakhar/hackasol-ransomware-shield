@@ -10,11 +10,11 @@
   - Initialize local git repo on `main` branch.
   - Verify `.gitignore` excludes `.venv`, `__pycache__`, `node_modules`, and dummy sandbox artifacts.
   - *DoD*: `git status` shows clean tracking with governance files committed.
-- [ ] **TASK-1.2: Python Virtual Environment & Dependency Lock**
+- [x] **TASK-1.2: Python Virtual Environment & Dependency Lock**
   - Create Python 3.9+ virtual environment in `.venv/`.
   - Install runtime dependencies: `watchdog`, `psutil`, `scikit-learn`, `numpy`, `fastapi`, `uvicorn`, `pydantic`, `pytest`.
   - *DoD*: `python3 -m pytest --version` and imports of `psutil`, `watchdog`, `sklearn` succeed inside `.venv`.
-- [ ] **TASK-1.3: Sandbox Workspace & Benign File Generator**
+- [x] **TASK-1.3: Sandbox Workspace & Benign File Generator**
   - Create directory `./sandbox_targets/` with `.gitkeep`.
   - Build `simulator/sample_generator.py` that populates `./sandbox_targets/` with 50 harmless test files (`.txt`, `.json`, `.csv`, `.pdf` dummy buffers with typical low entropy ~3.5).
   - *DoD*: Running `python3 simulator/sample_generator.py` reliably creates 50 test files with low entropy.
