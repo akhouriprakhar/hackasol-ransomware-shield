@@ -1,0 +1,45 @@
+# ==============================================================================
+# AegisRansom-X .gitignore (macOS & Hackathon Optimized)
+# ==============================================================================
+
+# Secrets & Environment
+.env
+.env.local
+*.pem
+*.key
+
+# Python Virtual Environments & Bytecode
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Node.js & Frontend Artifacts
+node_modules/
+frontend/dist/
+.vite/
+npm-debug.log*
+
+# Database & SQLite State
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Isolated Sandbox Files (Keep structure via .gitkeep, ignore generated dummy files)
+sandbox_targets/*
+!sandbox_targets/.gitkeep
+
+# macOS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Local Agent Artifacts
+.system_generated/
+*.log
