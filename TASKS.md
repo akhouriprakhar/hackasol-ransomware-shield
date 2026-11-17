@@ -27,7 +27,7 @@
 ---
 
 ## Phase 2: macOS Endpoint Sensing & Chunked Shannon Entropy
-- [ ] **TASK-2.1: 4KB Chunk Shannon Entropy Calculator (`agent/entropy.py`)**
+- [x] **TASK-2.1: 4KB Chunk Shannon Entropy Calculator (`agent/entropy.py`)**
   - Implement fast byte-frequency entropy calculator on 4KB head/tail samples.
   - *DoD*: Unit test verifies plaintext file entropy ($3.0 - 5.0$) vs. encrypted sample entropy ($> 7.5$) in $< 2\text{ms}$.
 - [ ] **TASK-2.2: Micro-Canary Honeyfile Manager (`agent/canary_manager.py`)**
