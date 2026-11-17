@@ -6,7 +6,7 @@
 ---
 
 ## Phase 1: Environment Bootstrap & Safe Ransomware Simulator (READY TO EXECUTE)
-- [ ] **TASK-1.1: Git Repository Initialization & Hygiene**
+- [x] **TASK-1.1: Git Repository Initialization & Hygiene**
   - Initialize local git repo on `main` branch.
   - Verify `.gitignore` excludes `.venv`, `__pycache__`, `node_modules`, and dummy sandbox artifacts.
   - *DoD*: `git status` shows clean tracking with governance files committed.
