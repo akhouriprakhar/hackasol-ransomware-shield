@@ -113,6 +113,10 @@ class CanaryManager:
 
         return False
 
+    def is_canary_path(self, file_path: Union[str, Path]) -> bool:
+        """Alias for is_canary to provide seamless compatibility for path-based callers."""
+        return self.is_canary(file_path)
+
     def check_tamper(
         self,
         file_path: Union[str, Path],

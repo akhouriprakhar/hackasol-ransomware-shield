@@ -252,3 +252,51 @@ def test_full_live_attack_containment_and_rollback(client):
             assert p.status() == psutil.STATUS_ZOMBIE or not p.is_running()
         except psutil.NoSuchProcess:
             pass  # Process completely reaped
+
+
+def test_all_simulator_modes_start_endpoint(client):
+    """Verify POST /api/simulator/start handles 'benign', 'burst', and 'stealth' modes cleanly with 200 OK."""
+    # Ensure sandbox has baseline files
+    client.post("/api/simulator/reset")
+
+    # 1. Test benign mode
+    resp_benign = client.post("/api/simulator/start", json={"mode": "benign"})
+    assert resp_benign.status_code == 200, f"Benign mode failed: {resp_benign.text}"
+    data_benign = resp_benign.json()
+    assert data_benign["status"] == "started"
+    assert data_benign["mode"] == "benign"
+    assert "benign" in data_benign["message"].lower()
+
+    # 2. Test burst mode
+    resp_burst = client.post("/api/simulator/start", json={"mode": "burst", "max_files": 2})
+    assert resp_burst.status_code == 200, f"Burst mode failed: {resp_burst.text}"
+    data_burst = resp_burst.json()
+    assert data_burst["status"] == "started"
+    assert data_burst["mode"] == "burst"
+    assert data_burst["pid"] > 0
+    burst_pid = data_burst["pid"]
+
+    # Allow time for containment or termination
+    time.sleep(0.3)
+    try:
+        proc = psutil.Process(burst_pid)
+        proc.kill()
+    except Exception:
+        pass
+
+    # 3. Test stealth mode
+    resp_stealth = client.post("/api/simulator/start", json={"mode": "stealth", "max_files": 2, "delay": 0.1})
+    assert resp_stealth.status_code == 200, f"Stealth mode failed: {resp_stealth.text}"
+    data_stealth = resp_stealth.json()
+    assert data_stealth["status"] == "started"
+    assert data_stealth["mode"] == "stealth"
+    assert data_stealth["pid"] > 0
+    stealth_pid = data_stealth["pid"]
+
+    time.sleep(0.3)
+    try:
+        proc = psutil.Process(stealth_pid)
+        proc.kill()
+    except Exception:
+        pass
+

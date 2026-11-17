@@ -149,18 +149,24 @@ class AegisPipeline:
     def start_simulator(self, req: SimulatorStartRequest) -> Dict[str, Union[str, int]]:
         """Launch brac_sim.py against sandbox_targets or simulate benign activity."""
         if req.mode.lower() == "benign":
-            # Perform harmless, low-entropy modifications on 5 non-canary files
+            # Perform harmless, low-entropy modifications on up to 5 non-canary files
+            txt_files = [f for f in sorted(self.sandbox_dir.glob("*.txt")) if not self.canary_manager.is_canary(f)]
+            if not txt_files:
+                # If no txt files exist, generate a benign sample file
+                sample_file = self.sandbox_dir / "sample_doc_001.txt"
+                sample_file.write_text("Quarterly audit notes: Developer workstation complies with corporate security policy.\n", encoding="utf-8")
+                txt_files = [sample_file]
+
             modified = 0
-            for f in sorted(self.sandbox_dir.glob("*.txt")):
-                if not self.canary_manager.is_canary_path(f):
-                    try:
-                        with open(f, "a", encoding="utf-8") as fp:
-                            fp.write(f"\n# Benign audit check at {time.strftime('%Y-%m-%d %H:%M:%S')}: Routine low-entropy edit.\n")
-                        modified += 1
-                        if modified >= (req.max_files or 5):
-                            break
-                    except Exception as e:
-                        logger.warning("Error during benign edit on %s: %s", f, e)
+            for f in txt_files:
+                try:
+                    with open(f, "a", encoding="utf-8") as fp:
+                        fp.write(f"\n# Benign audit check at {time.strftime('%Y-%m-%d %H:%M:%S')}: Routine low-entropy edit.\n")
+                    modified += 1
+                    if modified >= (req.max_files or 5):
+                        break
+                except Exception as e:
+                    logger.warning("Error during benign edit on %s: %s", f, e)
             logger.info("Executed benign activity simulation across %d files", modified)
             return {
                 "status": "started",
