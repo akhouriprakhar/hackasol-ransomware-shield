@@ -54,6 +54,16 @@ export interface SandboxStatus {
   locked_files: number;
 }
 
+export interface SandboxFile {
+  name: string;
+  path: string;
+  size_bytes: number;
+  is_canary: boolean;
+  is_locked: boolean;
+  ext: string;
+  entropy?: number;
+}
+
 export interface HealthStatus {
   status: string;
   watcher: WatcherStatus;

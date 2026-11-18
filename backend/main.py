@@ -89,6 +89,17 @@ async def ws_telemetry_endpoint(websocket: WebSocket):
     """Primary telemetry stream broadcasting TelemetryEvents and IncidentAlerts."""
     await ws_manager.connect(websocket)
     try:
+        # Send initial health snapshot upon connection
+        health = pipeline.get_health_status()
+        await websocket.send_json({
+            "type": "HEALTH_STATUS",
+            "data": health
+        })
+        if health.get("latest_incident"):
+            await websocket.send_json({
+                "type": "INCIDENT_ALERT",
+                "data": health["latest_incident"]
+            })
         while True:
             # Keep-alive receive loop
             data = await websocket.receive_text()

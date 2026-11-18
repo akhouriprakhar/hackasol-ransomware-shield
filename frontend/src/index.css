@@ -3,53 +3,207 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
+
   body {
-    background-color: #070a12;
-    color: #e2e8f0;
+    background-color: #080A0F;
+    color: #f1f5f9;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+  }
+
+  /* Force tabular numbers for alignment in monospaced telemetry */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* Custom Cyberpunk / Dark SOC Scrollbar */
+/* Tactical HUD Precision Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b101d;
+  background: #070a12;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e2d4d;
-  border-radius: 3px;
+  background: #18233a;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #06b6d4;
+  background: #00f0ff;
 }
 
-/* Glow & Neon Effects */
+/* Tactical Glow Effects */
 .glow-cyan {
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
 }
 
 .glow-crimson {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 25px rgba(255, 46, 84, 0.4);
 }
 
 .glow-green {
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
 }
 
 .glow-amber {
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
 }
 
-/* Subtle Grid scan background */
+/* Subtle Tactical Grid & Crosshair Background */
 .bg-grid-cyber {
-  background-size: 32px 32px;
+  background-color: #05070b;
   background-image: 
-    linear-gradient(to right, rgba(30, 45, 77, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 45, 77, 0.15) 1px, transparent 1px);
+    radial-gradient(circle at 1px 1px, rgba(0, 240, 255, 0.07) 1px, transparent 0),
+    linear-gradient(to right, rgba(20, 28, 48, 0.3) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 28, 48, 0.3) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px, 32px 32px;
 }
+
+/* Tactical Corner Accent Brackets for panels */
+.tactical-panel {
+  position: relative;
+  background: #090d16;
+  border: 1px solid #141c30;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tactical-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #00f0ff;
+  border-left: 2px solid #00f0ff;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.tactical-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid #00f0ff;
+  border-right: 2px solid #00f0ff;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.tactical-panel-alert {
+  position: relative;
+  background: #090d16;
+  border: 1px solid rgba(255, 46, 84, 0.6);
+  box-shadow: 0 0 30px rgba(255, 46, 84, 0.25);
+}
+
+.tactical-panel-alert::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #ff2e54;
+  border-left: 2px solid #ff2e54;
+  pointer-events: none;
+}
+
+.tactical-panel-alert::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid #ff2e54;
+  border-right: 2px solid #ff2e54;
+  pointer-events: none;
+}
+
+/* Subtle glass effect for headers & floating pills */
+.glass-header {
+  background: rgba(9, 13, 22, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Keyframes for MagicUI / Animata style animations */
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.animate-border-beam {
+  animation: border-beam var(--duration) infinite linear;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+.animate-shimmer-slide {
+  animation: shimmer-slide var(--speed) ease-in-out infinite alternate;
+}
+
+.animate-spin-around {
+  animation: spin-around calc(var(--speed) * 2) infinite linear;
+}
+
+

@@ -36,3 +36,10 @@ async def start_simulator(
 async def reset_simulator(pipeline=Depends(get_pipeline)) -> Dict[str, Any]:
     """Reset sandbox_targets with fresh 50 benign files + micro-canary honeyfiles."""
     return pipeline.reset_sandbox()
+
+
+@router.get("/files")
+async def get_sandbox_files(pipeline=Depends(get_pipeline)):
+    """Return inventory of files in sandbox_targets for live disk visualization."""
+    return pipeline.get_sandbox_files()
+

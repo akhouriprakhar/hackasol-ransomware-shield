@@ -1,49 +1,48 @@
 # ==============================================================================
-# AegisRansom-X: Tier-2 Post-Containment Ollama Copilot & SOC Console Compose
+# AegisRansom-X: Multi-Service Docker Orchestration Blueprint
+# (React SOC Frontend + FastAPI Backend + Native macOS Hardware Bridging)
 # ==============================================================================
-# ARCHITECTURAL HOST BRIDGING NOTICE:
-# 1. Native macOS Darwin Host Layer:
-#    - The Aegis endpoint sensor (agent/watcher.py) hooks directly into the macOS
-#      kernel via Apple Silicon FSEvents.
-#    - Immediate process containment (agent/containment.py) relies on native POSIX
-#      Mach signals (SIGSTOP/SIGCONT) to freeze suspect host processes in < 2ms.
-#    - Therefore, the Aegis backend/agent pipeline runs natively on the macOS host:
-#        $ python3 -m uvicorn backend.main:app --port 8000
-#
-# 2. Containerized Tier-2 Services:
-#    - ollama: Local inference engine running "gemma:2b" on http://localhost:11434.
-#    - frontend: React + Vite SOC Dashboard on http://localhost:5173, reverse-
-#      proxying /api and /ws traffic to the macOS host via host.docker.internal:8000.
-#
-# QUICKSTART:
-#   $ docker compose up -d
-#   $ docker exec -it aegis-ollama ollama pull gemma:2b
+# ARCHITECTURAL NOTICE:
+# - Apple Silicon Host Bridging:
+#   Using extra_hosts: ['host.docker.internal:host-gateway'] allows containers to:
+#   1. Communicate seamlessly with native macOS Ollama (Qwen-4B) on port 11434.
+#   2. Bridge with the native darwin-arm64 FSEvents & POSIX SIGSTOP sentinel daemon.
+# - Storage Isolation:
+#   Enforces strict ./sandbox_targets/ volume mounting for safe attack simulation
+#   and instant APFS rollback validation.
 # ==============================================================================
 
 services:
 
   # ----------------------------------------------------------------------------
-  # Local Ollama LLM Engine (Tier-2 Post-Containment Copilot)
+  # FastAPI Telemetry & Incident Arbiter Backend
   # ----------------------------------------------------------------------------
-  ollama:
-    image: ollama/ollama:latest
-    container_name: aegis-ollama
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aegis-backend
     restart: unless-stopped
     ports:
-      - "11434:11434"
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
-      - ollama_data:/root/.ollama
+      - "./sandbox_targets:/app/sandbox_targets"
     environment:
-      - OLLAMA_KEEP_ALIVE=24h
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=qwen:4b
+      - SANDBOX_PATH=/app/sandbox_targets
     healthcheck:
-      test: ["CMD-SHELL", "ollama list > /dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 5s
 
   # ----------------------------------------------------------------------------
-  # React + Vite SOC Dashboard (Nginx Reverse-Proxy to Host macOS Agent)
+  # React + Vite Dark-Mode SOC Dashboard (Nginx Production Container)
   # ----------------------------------------------------------------------------
   frontend:
     build:
@@ -56,10 +55,27 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      ollama:
+      backend:
         condition: service_healthy
     environment:
       - NODE_ENV=production
+
+  # ----------------------------------------------------------------------------
+  # Optional Containerized Ollama Fallback Engine
+  # (Only invoked if native macOS Apple Silicon Ollama daemon is absent)
+  # ----------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aegis-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    profiles:
+      - full-offline
 
 volumes:
   ollama_data:

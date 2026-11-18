@@ -394,3 +394,24 @@ class AegisPipeline:
 
             "timestamp": time.time(),
         }
+
+    def get_sandbox_files(self) -> List[Dict[str, Any]]:
+        """Return structured inventory of all files inside sandbox_targets for UI disk visualization."""
+        files = []
+        try:
+            for p in sorted(self.sandbox_dir.iterdir()):
+                if p.name == ".gitkeep":
+                    continue
+                is_canary = p.name.startswith("!") or p.name.startswith("_aa_")
+                is_locked = p.name.endswith(".locked")
+                files.append({
+                    "name": p.name,
+                    "path": str(p),
+                    "size_bytes": p.stat().st_size if p.exists() else 0,
+                    "is_canary": is_canary,
+                    "is_locked": is_locked,
+                    "ext": p.suffix.lower() if not is_locked else ".locked",
+                })
+        except Exception as e:
+            logger.error("Failed to list sandbox files: %s", e)
+        return files
